@@ -16,7 +16,8 @@ def buzzer():
     playsound(SOUND_FILE)
     print("Buzzing") # TO DO: replace with a buzzer counter or something to show that program is alive incase user's sound is off
 
-def generate_interval_times(duration, z):
+#TO DO: make sure that the intervals don't exceed the duration
+def generate_interval_times(duration, min_interval_size):
     """Generate a list of interval times in seconds"""
     interval_amount = int(duration / 3)  # calculate the number of intervals to generate
     interval_amount += random.randint(int(-0.2*interval_amount), int(0.2*interval_amount)) # add a random amount of intervals to the base amount
@@ -24,13 +25,13 @@ def generate_interval_times(duration, z):
     max_interval_time = 180  
     intervals = []
     
-    for i in range(interval_amount):
+    for i in range(interval_amount): 
         interval_time = random.uniform(min_interval_time, max_interval_time)
         intervals.append(interval_time)
         min_interval_time = interval_time + z
         max_interval_time = min_interval_time + random.uniform(min_interval_time, max_interval_time)
     
-    return intervals  # convert intervals to seconds and return as list
+    return intervals
 
 def interval_buzzer(intervals):
     """The buzzer that will go off at the intervals"""
@@ -46,9 +47,11 @@ def interval_buzzer(intervals):
             print(f"Time taken to buzz: {temp_time_end - temp_time_start}")
             i += 1
 
+#TO DO: add ability to pause/continue/stop program
 def main():
     intervals = generate_interval_times(DURATION, MIN_INTERVAL_SIZE)
     print(intervals)
     interval_buzzer(intervals)
+
 
 main()
