@@ -2,19 +2,27 @@
 import os
 import time
 import random
-from playsound import playsound # I had to install version 1.2.2 of this module, version 1.3.0 does not work (consistantly)
+from playsound import playsound # version 1.2.2 of this module had to be installed, version 1.3.0 does not work (consistantly)
 
-AVERAGE_INTERVAL_SIZE = 120 # The average interval between buzzers in seconds
-DEVIATION = 0.2 # The deviation from the average interval used to introduce randomness of when buzzer goes off 
-SPEED_UP_FACTOR_FOR_TESTS = 1 # The factor by which the duration and intervals are shortened for testing purposes
+MICRO_BREAK_DURATION = 10
+AVERAGE_INTERVAL_SIZE = 300 # the average interval between buzzers in seconds
+DEVIATION = 0.2 # the deviation from the average interval used to introduce randomness of when buzzer goes off 
+SPEED_UP_FACTOR_FOR_TESTS = 40 # the factor by which the duration and intervals are shortened for testing purposes
 
 SOUND_START = os.path.join(os.path.dirname(__file__), "sounds/aurora_trimmed_4seconds.mp3")
 SOUND_BUZZER = os.path.join(os.path.dirname(__file__), "sounds/notification_sound_1second.mp3")
-SOUND_END = os.path.join(os.path.dirname(__file__), "sounds/aurora_trimmed_15seconds.mp3")  
+SOUND_END = SOUND_START       
+
+def micro_break(sound, duration):
+    """A buzzer goes of to indicate the start & stop of micro break"""
+    duration = random.uniform(duration, duration * 2) # make the duration of the micro break unpredictable
+    playsound(sound)
+    time.sleep(duration)
+    playsound(sound)
 
 def user_input():
     """Get the duration of the learning session from the user"""
-    duration = input("How long would you like to learn for (in minutes)?")
+    duration = input("How long would you like to learn for (in minutes)? ")
     try:
         duration = int(duration)
     except ValueError:
@@ -43,16 +51,16 @@ def generate_interval_times(duration, average_interval_size, deviation):
     return intervals
 
 
-def trigger_at_interval(intervals, duration, trigger_function, trigger_parameter):
+def trigger_at_interval(intervals, duration, trigger_function, trigger_parameter_1, trigger_parameter_2):
     """The buzzer that will go off at the set intervals"""
     time_start = time.time()
     time_end = time_start + (duration * 60)
     i = 0
     while((time.time() < time_end) and (i < len(intervals))):
         if(time.time() - time_start >= intervals[i]):
-            print(f"Trigger: {i+1}/{len(intervals)} [Debug log]") #TO DO: remove later, this is for debugging
+            print(f"Trigger: {i+1}/{len(intervals)} [Debug log]") # TO DO: comment out, this is for debugging purposes
             time_trigger_start = time.time()
-            trigger_function(trigger_parameter) # The function to be triggered at the interval
+            trigger_function(trigger_parameter_1, trigger_parameter_2) # The function to be triggered at the interval
             time_trigger_finished = time.time()
             i += 1
 
@@ -63,8 +71,8 @@ def trigger_at_interval(intervals, duration, trigger_function, trigger_parameter
                         raise AssertionError("Error: intervals are timed too close together or the trigger function is taking too long")
                 except AssertionError as error:
                     print(error)
-                    print(f"-- Time between this interval and the next is: {intervals[i] - intervals[i-1]} seconds [Debug log]") #TO DO: remove later, this is for debugging
-                    print(f"-- The trigger function took: {time_trigger_finished - time_trigger_start} seconds [Debug log]") #TO DO: remove later, this is for debugging
+                    print(f"-- Time between this interval and the next is: {intervals[i] - intervals[i-1]} seconds [Debug log]") # TO DO: comment out, this is for debugging purposes
+                    print(f"-- The trigger function took: {time_trigger_finished - time_trigger_start} seconds [Debug log]") # TO DO: comment out, this is for debugging purposes
                     return False
                 time.sleep(time_sleep)
     return True
@@ -76,7 +84,7 @@ def main():
     print(intervals) #TO DO: remove later, this is for debugging
     
     playsound(SOUND_START)
-    session_finished = trigger_at_interval(intervals, duration/SPEED_UP_FACTOR_FOR_TESTS, trigger_function=playsound, trigger_parameter=SOUND_BUZZER)
+    session_finished = trigger_at_interval(intervals, duration/SPEED_UP_FACTOR_FOR_TESTS, trigger_function=micro_break, trigger_parameter_1=SOUND_BUZZER, trigger_parameter_2=MICRO_BREAK_DURATION)
     if(session_finished == True):
         print("Good job! You have finished your learning session.")
         playsound(SOUND_END)
