@@ -5,7 +5,7 @@ import os
 #The settings for the learning buzzer
 MICRO_BREAK_DURATION_MIN = 10 # in seconds
 MICRO_BREAK_DURATION_MAX = 20 # in seconds
-AVERAGE_INTERVAL_SIZE = 300 # the average interval between buzzers in seconds
+AVERAGE_INTERVAL_SIZE = 120 # the average interval between buzzers in seconds
 DEVIATION = 0.2 # introduce randomness to the intervals of when the buzzer goes off
 SPEED_UP_FACTOR_FOR_TESTS = 1 # shorten the duration and intervals for testing purposes
 
